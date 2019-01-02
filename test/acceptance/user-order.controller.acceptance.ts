@@ -5,7 +5,11 @@
 
 import {supertest, expect} from '@loopback/testlab';
 import {ShoppingApplication} from '../..';
-import {OrderRepository, UserRepository} from '../../src/repositories';
+import {
+  OrderRepository,
+  UserRepository,
+  AccessTokenRepository,
+} from '../../src/repositories';
 import {MongoDataSource} from '../../src/datasources';
 import {User, Order} from '../../src/models';
 import {setupApplication} from './helper';
@@ -13,8 +17,10 @@ import {setupApplication} from './helper';
 describe('UserOrderController acceptance tests', () => {
   let app: ShoppingApplication;
   let client: supertest.SuperTest<supertest.Test>;
-  const orderRepo = new OrderRepository(new MongoDataSource());
-  const userRepo = new UserRepository(new MongoDataSource(), orderRepo);
+  const mongodbDS = new MongoDataSource();
+  const orderRepo = new OrderRepository(mongodbDS);
+  const accessTokenRepo = new AccessTokenRepository(mongodbDS);
+  const userRepo = new UserRepository(mongodbDS, orderRepo, accessTokenRepo);
 
   before('setupApplication', async () => {
     ({app, client} = await setupApplication());

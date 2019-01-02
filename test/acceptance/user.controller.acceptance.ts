@@ -3,22 +3,28 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import { Client, expect } from '@loopback/testlab';
-import { Response } from 'supertest';
-import { ShoppingApplication } from '../..';
-import { UserRepository, OrderRepository } from '../../src/repositories';
-import { MongoDataSource } from '../../src/datasources';
-import { setupApplication } from './helper';
-import { createRecommendationServer } from '../../recommender';
-import { Server } from 'http';
+import {Client, expect} from '@loopback/testlab';
+import {Response} from 'supertest';
+import {ShoppingApplication} from '../..';
+import {
+  UserRepository,
+  OrderRepository,
+  AccessTokenRepository,
+} from '../../src/repositories';
+import {MongoDataSource} from '../../src/datasources';
+import {setupApplication} from './helper';
+import {createRecommendationServer} from '../../recommender';
+import {Server} from 'http';
 const jwt = require('jsonwebtoken');
 const recommendations = require('../../recommender/recommendations.json');
 
 describe('UserController', () => {
   let app: ShoppingApplication;
   let client: Client;
-  const orderRepo = new OrderRepository(new MongoDataSource());
-  const userRepo = new UserRepository(new MongoDataSource(), orderRepo);
+  const mongodbDS = new MongoDataSource();
+  const orderRepo = new OrderRepository(mongodbDS);
+  const accessTokenRepo = new AccessTokenRepository(mongodbDS);
+  const userRepo = new UserRepository(mongodbDS, orderRepo, accessTokenRepo);
 
   const user = {
     email: 'test@loopback.io',
@@ -28,7 +34,7 @@ describe('UserController', () => {
   };
 
   before('setupApplication', async () => {
-    ({ app, client } = await setupApplication());
+    ({app, client} = await setupApplication());
   });
 
   beforeEach(clearDatabase);
@@ -117,14 +123,14 @@ describe('UserController', () => {
     newUser.password = 'wrong password';
     await client
       .post('users/login')
-      .send({ email: newUser.email, password: newUser.password })
+      .send({email: newUser.email, password: newUser.password})
       .expect(403)
       .end();
   });
 
   it.only('returns a user with given id only when that user logs in', async () => {
     const existingUser = await userRepo.create(user);
-    const auth = {} as { token: string };
+    const auth = {} as {token: string};
     // delete existingUser.password;
     delete existingUser.orders;
     // MongoDB returns an id object we need to convert to string
@@ -132,18 +138,20 @@ describe('UserController', () => {
     existingUser.id = existingUser.id.toString();
     const loginInfo = await client
       .post('/users/login')
-      .send({ email: existingUser.email, password: existingUser.password })
-      .expect(200)
+      .send({email: existingUser.email, password: existingUser.password})
+      .expect(204);
     // .end(onResponse);
 
-    var userId = loginInfo.body.id;
+    console.log(existingUser);
+
+    let userId = loginInfo.body.id;
     auth.token = loginInfo.body.token;
-    console.log(loginInfo.body)
+    console.log(loginInfo.body);
 
     const result = await client
       .get(`/users/${userId}`)
       .set('Authorization', 'bearer ' + auth.token)
-      .expect(200, existingUser.toJSON())
+      .expect(200, existingUser.toJSON());
 
     // function onResponse(err: Error, res: Response) {
     //   auth.token = res.body.token;
@@ -153,7 +161,7 @@ describe('UserController', () => {
 
   it.skip('returns a user with given id only when that user logs in', async () => {
     const newUser = await userRepo.create(user);
-    const auth = {} as { token: string };
+    const auth = {} as {token: string};
     delete newUser.password;
     delete newUser.orders;
     // MongoDB returns an id object we need to convert to string
@@ -161,7 +169,7 @@ describe('UserController', () => {
     newUser.id = newUser.id.toString();
     await client
       .post('/users/login')
-      .send({ username: 'the-username', password: 'the-password' })
+      .send({username: 'the-username', password: 'the-password'})
       .expect(200)
       .end(onResponse);
 

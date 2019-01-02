@@ -3,7 +3,7 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {Entity, model, property, hasMany} from '@loopback/repository';
+import {Entity, model, property, hasMany, hasOne} from '@loopback/repository';
 import {Order} from './order.model';
 import {AccessToken} from './access-token.model';
 
@@ -40,8 +40,8 @@ export class User extends Entity {
   @hasMany(() => Order)
   orders: Order[];
 
-  @hasMany(() => AccessToken)
-  accesstokens: AccessToken[];
+  @hasOne(() => AccessToken)
+  accesstoken: AccessToken;
 
   constructor(data?: Partial<User>) {
     super(data);

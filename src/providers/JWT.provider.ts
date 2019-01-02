@@ -41,14 +41,10 @@ export class JWTProvider implements Provider<AuthenticateFn | undefined> {
     //   users.find(username, password, cb);
     // });
 
-    // A mock for sign in
-    const payload = {admin: true};
-    await signAsync(payload, SECRET, {expiresInMinutes: 5});
-    // const token =
-    //   request.body.token ||
-    //   request.query.token ||
-    //   request.headers['x-access-token'];
-    const token = 'not the right token';
+    const token =
+      request.body.token ||
+      request.query.token ||
+      request.headers['x-access-token'];
 
     // do we allow session
     // if yes, then sign in function should store the token in the session
