@@ -4,8 +4,8 @@ import {
   AuthenticationBindings,
   AuthenticationMetadata,
 } from '@loopback/authentication';
-import {JWTStrategy} from '../authentication-strategies/JWT.strategy';
-
+// import { JWTStrategy } from '../authentication-strategies/JWT.strategy';
+import {JWTStrategy} from '@loopback/authentication';
 export class StrategyResolverProvider
   implements Provider<JWTStrategy | undefined> {
   constructor(
@@ -18,6 +18,7 @@ export class StrategyResolverProvider
     }
 
     const name = this.metadata.strategy;
+    console.log('in strategy resolver');
     if (name === 'jwt') {
       return new JWTStrategy();
     } else {

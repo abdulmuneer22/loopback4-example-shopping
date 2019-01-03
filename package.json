@@ -28,7 +28,7 @@
     "tslint:fix": "npm run tslint -- --fix",
     "pretest": "npm run clean && npm run build && npm run docker:start",
     "pretest:ci": "npm run build",
-    "test": "lb-mocha --allow-console-logs \"dist/test\"",
+    "test": "lb-mocha --allow-console-logs \"dist/test\"  --timeout 9999",
     "test:ci": "lb-mocha --allow-console-logs \"dist/test\"",
     "posttest": "npm run lint",
     "test:dev": "lb-mocha --allow-console-logs dist/test/**/*.js && npm run posttest",

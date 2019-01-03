@@ -1,1 +1,1 @@
-export * from './JWT.provider';
+export * from './strategy.resolver.provider';
