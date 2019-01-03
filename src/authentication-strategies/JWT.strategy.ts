@@ -9,13 +9,9 @@ import {Request} from '@loopback/rest';
 export class JWTStrategy {
   // tslint:disable-next-line:no-any
   async authenticate(request: Request): Promise<any> {
-    // A mock for sign in
-    // const payload = {admin: true};
-    // const payload = request.body;
-    // await signAsync(payload, SECRET, { expiresIn: 300 });
-
+    // there is a discussion regarding how to retrieve the token,
+    // see comment https://github.com/strongloop/loopback-next/issues/1997#issuecomment-451054806
     const token = request.query.token || request.headers['authorization'];
-    // const token = 'not the right token';
 
     if (token) {
       try {
